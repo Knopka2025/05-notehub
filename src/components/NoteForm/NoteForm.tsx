@@ -1,4 +1,4 @@
-import { Formik, Form, Field } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
@@ -6,14 +6,16 @@ import toast from "react-hot-toast";
 import { createNote } from "../../services/noteService";
 import type { CreateNoteData } from "../../services/noteService";
 
-
 import css from "./NoteForm.module.css";
 
 const tags = ["Todo", "Work", "Personal", "Meeting", "Shopping"] as const;
 
 const validationSchema = Yup.object({
-  title: Yup.string().required("Required"),
-  content: Yup.string().max(500),
+  title: Yup.string()
+    .min(3, "Must be at least 3 characters")
+    .max(50, "Must be at most 50 characters")
+    .required("Required"),
+  content: Yup.string().max(500, "Max 500 characters"),
   tag: Yup.string().oneOf(tags).required("Required"),
 });
 
@@ -49,48 +51,40 @@ export default function NoteForm({ onCancel }: NoteFormProps) {
         actions.resetForm();
       }}
     >
-      {({ errors, touched }) => (
-        <Form className={css.form}>
-          <label>
-            Title
-            <Field name="title" className={css.input} />
-            {errors.title && touched.title && (
-              <div className={css.error}>{errors.title}</div>
-            )}
-          </label>
+      <Form className={css.form}>
+        <label>
+          Title
+          <Field name="title" className={css.input} />
+          <ErrorMessage name="title" component="div" className={css.error} />
+        </label>
 
-          <label>
-            Content
-            <Field name="content" as="textarea" className={css.textarea} />
-            {errors.content && touched.content && (
-              <div className={css.error}>{errors.content}</div>
-            )}
-          </label>
+        <label>
+          Content
+          <Field name="content" as="textarea" className={css.textarea} />
+          <ErrorMessage name="content" component="div" className={css.error} />
+        </label>
 
-          <label>
-            Tag
-            <Field name="tag" as="select" className={css.select}>
-              {tags.map((tag) => (
-                <option key={tag} value={tag}>
-                  {tag}
-                </option>
-              ))}
-            </Field>
-            {errors.tag && touched.tag && (
-              <div className={css.error}>{errors.tag}</div>
-            )}
-          </label>
+        <label>
+          Tag
+          <Field name="tag" as="select" className={css.select}>
+            {tags.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </Field>
+          <ErrorMessage name="tag" component="div" className={css.error} />
+        </label>
 
-          <div className={css.actions}>
-            <button type="submit" className={css.button}>
-              Create note
-            </button>
-            <button type="button" onClick={onCancel} className={css.cancel}>
-              Cancel
-            </button>
-          </div>
-        </Form>
-      )}
+        <div className={css.actions}>
+          <button type="submit" className={css.button}>
+            Create note
+          </button>
+          <button type="button" onClick={onCancel} className={css.cancel}>
+            Cancel
+          </button>
+        </div>
+      </Form>
     </Formik>
   );
 }

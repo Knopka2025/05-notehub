@@ -39,14 +39,19 @@ export default function Modal({ onClose, children }: Props) {
     onClose();
   };
 
-  const handleBackdropClick = () => {
-    handleClose();
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
   };
 
   if (!modalRoot) return null;
 
   return createPortal(
-    <div className={`${css.backdrop} ${isVisible ? css.show : ""}`} onClick={handleBackdropClick}>
+    <div
+      className={`${css.backdrop} ${isVisible ? css.show : ""}`}
+      onClick={handleBackdropClick}
+    >
       <div
         className={css.modal}
         role="dialog"
