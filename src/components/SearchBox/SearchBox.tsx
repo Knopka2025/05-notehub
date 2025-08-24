@@ -10,17 +10,36 @@ interface SearchBoxProps {
 export default function SearchBox({ onSearch }: SearchBoxProps) {
   const [value, setValue] = useState("");
 
+  const handleSearch = (query: string) => {
+    const trimmed = query.trim();
+
+    if (!trimmed) {
+      toast.error("Enter text to search!");
+      return;
+    }
+
+    onSearch(trimmed);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      const trimmed = value.trim();
-
-      if (!trimmed) {
-        toast.error("Enter text to search!");
-        return;
-      }
-
-      onSearch(trimmed);
+      handleSearch(value);
       setValue("");
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setValue(newValue);
+
+    if (!newValue.trim()) {
+      //! якщо поле порожнє — повертаємо початковий стан
+      onSearch("");
+      return;
+    }
+
+    if (newValue.trim().length >= 3) { //! Починаючи з третього сиволу 
+      onSearch(newValue.trim());
     }
   };
 
@@ -30,7 +49,7 @@ export default function SearchBox({ onSearch }: SearchBoxProps) {
       type="text"
       placeholder="Search notes"
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={handleChange}
       onKeyDown={handleKeyDown}
     />
   );
